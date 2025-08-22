@@ -19,6 +19,7 @@ var (
 	azureContainer   = os.Getenv("TEST_AZURE_CONTAINER")
 	azureAccountName = os.Getenv("TEST_AZURE_ACCOUNT_NAME")
 	azureAccountKey  = os.Getenv("TEST_AZURE_ACCOUNT_KEY")
+	azureAccountURL  = os.Getenv("TEST_AZURE_ACCOUNT_URL")
 )
 
 func TestAzureBlobDatastore(t *testing.T) {
@@ -45,7 +46,7 @@ func operationAzureBlob(t *testing.T, objloc string, objkey string, operation ze
 	}
 
 	// create Endpoint
-	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, awsRegion, azureContainer, azureAuth)
+	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, azureAccountURL, azureContainer, azureAuth)
 	if err == nil && dEndPoint != nil {
 		// create Request
 		req := dEndPoint.NewRequest(operation, objkey, objloc, 0, true, respChan)
@@ -78,7 +79,7 @@ func operationAzureBlobNegative(t *testing.T, azureName string, azureKey string,
 	}
 
 	// create Endpoint
-	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, awsRegion, azureContainer, azureAuth)
+	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, azureAccountURL, azureContainer, azureAuth)
 	if err == nil && dEndPoint != nil {
 		// create Request
 		req := dEndPoint.NewRequest(operation, "azureteststuff", azureUploadFile, 0, true, respChan)
@@ -111,7 +112,7 @@ func listAzureBlobFiles(t *testing.T, container string) (bool, string) {
 
 	azureAuth := &zedUpload.AuthInput{AuthType: "s3", Uname: azureAccountName, Password: azureAccountKey}
 	// create Endpoint
-	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, awsRegion, container, azureAuth)
+	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, azureAccountURL, container, azureAuth)
 
 	if err == nil && dEndPoint != nil {
 
@@ -143,7 +144,7 @@ func getAzureBlobMetaData(t *testing.T, objloc string, objkey string) (bool, str
 		return true, err.Error(), 0, ""
 	}
 	// create Endpoint
-	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, awsRegion, azureContainer, azureAuth)
+	dEndPoint, err := ctx.NewSyncerDest(zedUpload.SyncAzureTr, azureAccountURL, azureContainer, azureAuth)
 	if err == nil && dEndPoint != nil {
 		// create Request
 		req := dEndPoint.NewRequest(zedUpload.SyncOpGetObjectMetaData, objkey, objloc, 0, true, respChan)
@@ -272,13 +273,13 @@ func testAzureBlobDatastoreAPI(t *testing.T) {
 		}
 	})
 	t.Run("List=1", func(t *testing.T) {
-		status, msg := listAzureBlobFiles(t, "zedtest123")
+		status, msg := listAzureBlobFiles(t, azureContainer)
 		if status {
 			t.Errorf("%v", msg)
 		}
 	})
 	t.Run("List=2", func(t *testing.T) {
-		status, msg := listAzureBlobFiles(t, "zedtest123")
+		status, msg := listAzureBlobFiles(t, azureContainer)
 		if status {
 			t.Errorf("%v", msg)
 		}
@@ -302,7 +303,7 @@ func testAzureBlobDatastoreAPI(t *testing.T) {
 		}
 	})
 	t.Run("List=2", func(t *testing.T) {
-		status, msg := listAzureBlobFiles(t, "zedtest123")
+		status, msg := listAzureBlobFiles(t, azureContainer)
 		if status {
 			t.Errorf("%v", msg)
 		}
